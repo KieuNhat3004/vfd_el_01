@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <title>Remote Tech - Biến Tần</title>
+  <style>
+/* CSS Variables for Theming */
+:root {
+  --background-gradient: linear-gradient(135deg, #f4f7fc 0%, #e8edf5 100%);
+  --text-color: #1f2937;
+  --section-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 245, 250, 0.85) 100%);
+  --section-border-color: rgba(0, 0, 0, 0.12); 
+  --section-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  --header-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(230, 235, 240, 0.9) 100%);
+  --header-text-color: #111827;
+  --header-subtitle-color: #4b5563; 
+  --accent-color: #2563eb;
+  --accent-text-shadow: 0 0 8px rgba(37, 99, 235, 0.25);
+  
+  --frequency-display-label-color: var(--header-subtitle-color); 
+  --frequency-display-value-color: #c81e1e; 
+
+  --frequency-input-bg: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(37, 99, 235, 0.08) 100%);
+  --frequency-input-border-color: rgba(37, 99, 235, 0.4); 
+  --frequency-input-text-color: #1e40af; 
+  --frequency-input-placeholder-color: rgba(37, 99, 235, 0.6); 
+  --frequency-arrow-color: var(--frequency-input-text-color);
+  --frequency-arrow-hover-color: var(--accent-color);
+
+  --status-row-border-color: rgba(0, 0, 0, 0.1); 
+  --status-label-color: #374151;
+  --status-value-color: #1e3a8a;
+  
+  /* Status command display colors and backgrounds */
+  --status-stopped-text-color: #b91c1c; 
+  --status-stopped-bg-color: rgba(220, 38, 38, 0.08); 
+  --status-stopped-border-color: rgba(220, 38, 38, 0.3); 
+
+  --status-running-text-color: #047426; 
+  --status-running-bg-color: rgba(239, 244, 240, 0.818); 
+  --status-running-border-color: rgba(22, 163, 74, 0.3); 
+  /* Colors for blinking effect when running */
+  --status-running-bg-blink-color: rgb(197, 248, 76); 
+  --status-running-border-blink-color: rgba(4, 56, 247, 0.851); 
+
+
+  --btn-set-bg: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --btn-set-hover-bg: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  --btn-start-bg: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  --btn-start-hover-bg: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  --btn-stop-bg: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  --btn-stop-hover-bg: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  --tech-title-color: #1e3a8a;
+  --tech-title-shadow1: #9fbcfb;
+  --tech-title-shadow2: #8eabfc;
+  --highlight-color: #0f172a;
+  --highlight-shadow1: #f9baba;
+  --highlight-shadow2: #e09999;
+  --output-text-color: #15803d;
+  --error-border-color: rgba(220, 38, 38, 0.3); 
+  --section-control-bg: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(29, 78, 216, 0.05) 100%);
+  --frequency-setting-bg: linear-gradient(135deg, rgba(0,0,0,0.03) 0%, rgba(37, 99, 235,0.03) 100%);
+  --accent-color-alpha3-particles: rgba(37, 99, 235, 0.2);
+  --secondary-accent-particles: #1d4ed8;
+  --secondary-accent-alpha3-particles: rgba(29, 78, 216, 0.2);
+  --shine-color-header: rgba(0,0,0, 0.02);
+  --shine-color-button: rgba(0,0,0,0.05);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--background-gradient);
+  color: var(--text-color);
+  font-family: 'Inter', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; 
+}
+
+body {
+  flex: 1;
+  position: relative;
+}
+
+body::before { 
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, var(--accent-color), transparent),
+    radial-gradient(1px 1px at 40px 70px, var(--accent-color-alpha3-particles), transparent), 
+    radial-gradient(1px 1px at 90px 40px, var(--secondary-accent-particles), transparent);
+  background-repeat: repeat;
+  background-size: 200px 150px; 
+  animation: particle-float 25s linear infinite; 
+  opacity: 0.1; 
+  z-index: -1;
+  transition: background-image 0.3s ease;
+}
+
+@keyframes particle-float {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(-80px) translateX(40px); } 
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  padding: 20px;
+  background: var(--header-bg);
+  border: 1px solid var(--section-border-color);
+  border-radius: 20px;
+  box-shadow: var(--section-shadow), inset 0 1px 0 rgba(0,0,0, 0.03);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header::before { 
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, var(--shine-color-header), transparent);
+  animation: shine 3.5s ease-in-out infinite; 
+}
+
+@keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
+
+.header h2 { margin: 0 0 8px 0; color: var(--header-text-color); }
+.header p { margin: 0; font-size: 1.1em; color: var(--header-subtitle-color); font-weight: 500; }
+
+.section {
+  background: var(--section-bg);
+  border: 1px solid var(--section-border-color);
+  padding: 25px;
+  margin-top: 15px;
+  border-radius: 20px;
+  box-shadow: var(--section-shadow), inset 0 1px 0 rgba(0,0,0, 0.03);
+  position: relative;
+  transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section.control {
+  padding: 30px;
+  min-height: 220px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around; 
+  background: var(--section-control-bg); 
+}
+
+.section.monitoring {
+  padding: 25px;
+  min-height: 240px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around; 
+}
+
+.section-title {
+  font-family: 'Inter', sans-serif; 
+  font-weight: 700; 
+  margin-bottom: 15px; 
+  text-transform: none; 
+  display: inline-block; 
+  font-size: 1.2em; 
+  color: var(--accent-color);
+  letter-spacing: 0; 
+}
+
+.status-header .section-title { 
+  font-size: 1.1em; 
+  line-height: 1.4em; 
+  margin-bottom: 0; 
+}
+.status-header span { vertical-align: middle; }
+
+.frequency-setting {
+  background: var(--frequency-setting-bg);
+  border: 1px solid var(--frequency-input-border-color);
+  border-radius: 16px; padding: 20px; margin-bottom: 20px; 
+  position: relative; overflow: hidden;
+}
+
+.frequency-setting::before { 
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+  animation: scan 2.5s ease-in-out infinite; 
+}
+@keyframes scan { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+.frequency-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 15px; 
+  flex-wrap: wrap; gap: 10px;
+}
+
+.frequency-title {
+  font-family: 'Inter', sans-serif; 
+  font-size: 1.2em; 
+  font-weight: 700; 
+  color: var(--accent-color); 
+  text-transform: none; 
+  letter-spacing: 0; 
+  display: inline-block;
+}
+
+.frequency-display {
+  font-family: 'Inter', sans-serif; 
+  font-size: 1.0em; 
+  font-weight: 700;
+  color: var(--frequency-display-label-color); 
+  text-align: right;
+}
+
+.frequency-controls { 
+  display: flex; 
+  gap: 15px; 
+  align-items: stretch; 
+}
+
+.frequency-input-container {
+  position: relative;
+  display: flex; 
+  flex-grow: 1; /* Input container shares space equally with SET button */
+  height: 65px; 
+}
+
+.frequency-input {
+  width: 100%; 
+  height: 100%; 
+  font-family: 'Inter', sans-serif; 
+  font-size: 1.6em; /* Increased font size for input value */
+  font-weight: 700; 
+  padding-left: calc(33.33% + 8px); /* Arrows take 1/3, plus a gap */
+  padding-right: 10px; 
+  border: 2px solid var(--frequency-input-border-color); 
+  border-radius: 12px;
+  background: var(--frequency-input-bg); 
+  color: var(--frequency-input-text-color);
+  text-align: center; 
+  transition: all 0.2s ease; 
+  backdrop-filter: blur(5px); 
+  box-sizing: border-box; 
+  -moz-appearance: textfield;
+}
+.frequency-input::-webkit-outer-spin-button,
+.frequency-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.frequency-input:focus {
+  outline: none; border-color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(37,99,235,0.2), inset 0 0 10px rgba(37,99,235,0.03); 
+}
+.frequency-input::placeholder { color: var(--frequency-input-placeholder-color); font-size: 0.7em; } /* Adjusted placeholder size */
+
+.frequency-arrows {
+  position: absolute;
+  left: 0; 
+  top: 0;   
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: 33.33%; /* Arrows take 1/3 of the container width */
+  border-right: 1px solid var(--frequency-input-border-color); 
+  z-index: 1; 
+  border-top-left-radius: 10px; 
+  border-bottom-left-radius: 10px; 
+  overflow: hidden; 
+}
+
+.frequency-arrows .arrow-button {
+  background: transparent;
+  border: none;
+  color: var(--frequency-arrow-color);
+  cursor: pointer;
+  font-size: 1.2em; /* Slightly larger arrows for better clickability */
+  flex-grow: 1; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.frequency-arrows .arrow-button:hover {
+  color: var(--frequency-arrow-hover-color);
+  background-color: rgba(0,0,0,0.03);
+}
+.frequency-arrows .arrow-button:first-child {
+  border-bottom: 1px solid var(--frequency-input-border-color); 
+}
+.frequency-arrows .arrow-button i {
+    line-height: 1; 
+}
+
+
+.control-row { display: flex; gap: 15px; }
+.modern-button {
+  height: 65px; 
+  padding: 12px 18px; 
+  font-family: 'Inter', sans-serif;
+  font-weight: 700; 
+  font-size: 1.25em; /* Increased font size for CHẠY, DỪNG buttons */
+  border: none; 
+  border-radius: 16px;
+  cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+  position: relative; overflow: hidden; 
+  text-transform: uppercase; letter-spacing: 0.5px;
+  display: flex; align-items: center; justify-content: center; gap: 8px; 
+  box-sizing: border-box; 
+}
+.modern-button i { font-size: 0.9em; /* Adjusted icon size relative to new button text size */ transition: font-size 0.2s ease; }
+.modern-button::before { 
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, var(--shine-color-button), transparent);
+  transition: left 0.4s ease; 
+}
+.modern-button:hover::before { left: 100%; }
+.modern-button:active { transform: scale(0.96); } 
+
+.flex-grow { flex: 1; }
+.reset-button { display: none !important; }
+
+.btn-start, .btn-stop {
+  flex-grow: 1; 
+}
+
+.btn-start {
+  background: var(--btn-start-bg); color: white;
+  box-shadow: 0 4px 15px rgba(22, 163, 74, 0.2), inset 0 1px 0 rgba(0,0,0,0.03);  
+  border: 1px solid rgba(22, 163, 74, 0.4);
+}
+.btn-start:hover {
+  background: var(--btn-start-hover-bg);
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.3), inset 0 1px 0 rgba(0,0,0,0.03); 
+  transform: translateY(-1px); 
+}
+
+.btn-stop {
+  background: var(--btn-stop-bg); color: white;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2), inset 0 1px 0 rgba(0,0,0,0.03); 
+  border: 1px solid rgba(220, 38, 38, 0.4);
+}
+.btn-stop:hover {
+  background: var(--btn-stop-hover-bg);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3), inset 0 1px 0 rgba(0,0,0,0.03); 
+  transform: translateY(-1px); 
+}
+
+.btn-set {
+  background: var(--btn-set-bg); color: white; 
+  height: 65px; 
+  flex-grow: 1; /* Make SET button grow equally with input container */
+  padding: 10px 20px; 
+  font-size: 1.25em; /* Matched font size with .modern-button */
+  font-weight: 700; 
+  border-radius: 16px; 
+  box-shadow: 0 4px 15px rgba(37,99,235,0.2), inset 0 1px 0 rgba(0,0,0,0.03); 
+  border: 1px solid rgba(37,99,235,0.4);
+}
+.btn-set:hover {
+  background: var(--btn-set-hover-bg);
+  box-shadow: 0 6px 20px rgba(37,99,235,0.3), inset 0 1px 0 rgba(0,0,0,0.03); 
+}
+
+.status-row {
+  display: flex; justify-content: space-between;
+  border-bottom: 1px solid var(--status-row-border-color);
+  padding: 12px 0; margin: 4px 0; font-size: 1em; 
+}
+.status-header {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 1.2em; font-weight: bold; color: var(--text-color);
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 10px; margin-bottom: 10px; 
+}
+.status-row span i {
+  margin-right: 10px; color: var(--accent-color); width: 20px;
+  display: inline-block; text-align: center; 
+}
+.status-row span:first-child { font-weight: 600; color: var(--status-label-color); width: auto; display: inline-block; margin-right:10px; flex-shrink:0;}
+.status-row span:last-child { color: var(--status-value-color); font-weight: 700; font-size: 1.3em; text-align:right; flex-grow:1;}
+
+@keyframes blink-error-light { 
+  0%,100%{background-color:rgba(244, 12, 12, 0.56);border-color:rgba(255, 11, 11, 0.5); } 
+  50%{background-color:rgba(220,38,38,0.05);border-color:rgba(220,38,38,0.3); }
+}
+.blink-error {
+  animation-name: blink-error-light; 
+  animation-duration: 1.3s; 
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out; 
+  font-weight: bold; border: 1px solid var(--error-border-color);
+  border-radius: 8px; padding: 8px; 
+}
+
+/* Styles for statusCommand to have background and border */
+#statusCommand {
+  font-size: 1.35em; /* Further increased font size for "ĐANG CHẠY/DỪNG" */
+  font-weight: bold;
+  padding: 10px 15px; 
+  border-radius: 10px; 
+  border-width: 2.5px; 
+  border-style: solid;
+  border-color: transparent; 
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  min-width: 200px; /* Adjusted min-width */
+  text-align: center;
+}
+
+/* Blinking animation for Running status */
+@keyframes blink-running {
+  0%, 100% {
+    background-color: var(--status-running-bg-color);
+    border-color: var(--status-running-border-color);
+    color: var(--status-running-text-color);
+  }
+  50% {
+    background-color: var(--status-running-bg-blink-color);
+    border-color: var(--status-running-border-blink-color);
+    color: var(--status-running-text-color); 
+  }
+}
+
+.blink-running {
+  animation-name: blink-running;
+  animation-duration: 1.2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+
+@keyframes custom-spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+.custom-spin { animation: custom-spin 1.5s linear infinite; }
+
+.tech-title {
+  font-family: 'Inter', sans-serif; 
+  font-size: 24px; 
+  font-weight: 800;
+  color: var(--tech-title-color); 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px; 
+  text-shadow: 0 0 8px var(--tech-title-shadow1), 0 0 15px var(--tech-title-shadow2); 
+  display: inline-block; 
+  animation: glow 2.5s ease-in-out infinite alternate; 
+}
+.tech-title .highlight { color: var(--highlight-color); text-shadow: 0 0 6px var(--highlight-shadow1), 0 0 12px var(--highlight-shadow2); }
+@keyframes glow {
+  from{text-shadow:0 0 8px var(--tech-title-shadow1),0 0 15px var(--tech-title-shadow2)}
+  to{text-shadow:0 0 15px var(--tech-title-shadow1),0 0 30px var(--tech-title-shadow2)}
+}
+#output { color: var(--output-text-color); font-size: 0.9em; line-height: 1.3; margin-top: 10px; font-weight: 500; text-align: center; }
+
+/* Responsive Styles */
+@media (max-width:768px){
+  .modern-button, .frequency-input-container, .btn-set { height: 60px; } 
+  .frequency-input-container { flex-grow: 1; }
+  .btn-set { flex-grow: 1; font-size: 1.2em; } /* Matched font size on medium */
+
+
+  .modern-button{font-size:1.2em; padding:10px 15px;gap:6px} /* Increased CHẠY/DỪNG font size */
+  .modern-button i{font-size:0.85em} /* Adjusted icon size */
+  
+  .frequency-input{font-size:1.4em; padding:8px 12px 8px calc(33.33% + 3px);} /* Increased input font, adjusted padding */
+  .frequency-arrows { width: 33.33%;}
+  
+  #statusCommand { font-size: 1.2em; padding: 8px 12px; min-width: 170px;} /* Increased status text size */
+
+  .status-row{padding:10px 0;font-size:.95em}
+  .status-header{font-size:1.1em} 
+  .status-row span:first-child{width:auto;margin-right:10px}
+  .status-row span:last-child{font-size:1.2em;text-align:right;flex-grow:1}
+  .frequency-controls{gap:10px; justify-content: center;}
+  .frequency-header .frequency-display {font-size:.9em} 
+  .frequency-setting{padding:15px}
+  .section-title, .frequency-title { font-size: 1.1em; } 
+}
+@media (max-width:480px){
+  .modern-button, .frequency-input-container, .btn-set { height: 55px; } 
+  .btn-set { font-size: 1.1em; }
+
+  .modern-button{font-size:1.1em;padding:8px 10px;gap:4px} /* Increased CHẠY/DỪNG font size */
+  .modern-button i{font-size:.8em}
+
+  .frequency-input{font-size:1.3em;} 
+  .frequency-arrows { width: 33.33%;}
+
+
+  #statusCommand { font-size: 1.05em; padding: 6px 10px; min-width: 150px;} /* Increased status text size */
+
+
+  .status-row span:last-child,.frequency-display{font-size:1.1em}
+  .section-title, .frequency-title { font-size: 1em; } 
+}
+@media (max-width:400px){
+  .modern-button, .frequency-input-container, .btn-set { height: 55px; } 
+  .frequency-input-container { width: 100%; flex-grow:1; }
+  .btn-set { width: 100%; flex-grow:1; margin-top:10px; font-size: 1.1em; }
+  .modern-button {font-size: 1.1em;}
+
+  .frequency-input{font-size:1.3em}
+  .frequency-arrows { width: 33.33%;}
+  .frequency-controls{flex-direction:column;gap:10px}
+  .frequency-header{flex-direction:column;align-items:flex-start;gap:5px}
+  .frequency-header .frequency-title { width: 100%; text-align: left; margin-bottom: 5px;} 
+  .frequency-display{text-align:left;width:100%}
+  #statusCommand { width: 100%; margin-top: 10px; box-sizing: border-box; font-size: 1.05em;}
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div> 
+      <div class="header">
+        <h2 class="tech-title">Remote <span class="highlight">Tech</span></h2>
+        <p>Điều khiển & giám sát biến tần từ xa</p>
+      </div>
+        
+      <div class="section control">
+        <div class="frequency-setting">
+          <div class="frequency-header">
+            <span class="frequency-title">
+              <i class="fas fa-wave-square"></i> CÀI ĐẶT TẦN SỐ
+            </span>
+            <span class="frequency-display" id="frequencyDisplay">Set: <span style="color: var(--frequency-display-value-color);">0</span>Hz / Run: <span style="color: var(--frequency-display-value-color);">0</span>Hz</span>
+          </div>
+          
+          <div class="frequency-controls">
+            <div class="frequency-input-container">
+              <div class="frequency-arrows"> 
+                <button type="button" id="arrowUp" class="arrow-button" aria-label="Increase frequency">
+                  <i class="fas fa-caret-up"></i>
+                </button>
+                <button type="button" id="arrowDown" class="arrow-button" aria-label="Decrease frequency">
+                  <i class="fas fa-caret-down"></i>
+                </button>
+              </div>
+              <input id="frequency" type="number" class="frequency-input" min="0" max="50" step="1" placeholder="0-50 Hz" />
+            </div>
+            <button id="setFrequency" class="modern-button btn-set">
+              <i class="fas fa-check-circle"></i> SET
+            </button>
+          </div>
+          <div id="output">Tần số đã cài: 0Hz</div>
+        </div>
+
+        <div class="section-title">
+          <i class="fas fa-gamepad"></i> ĐIỀU KHIỂN
+        </div>
+        <div class="control-row">
+          <button class="modern-button btn-start flex-grow">
+            <i class="fas fa-play"></i> CHẠY
+          </button>
+          <button class="modern-button btn-stop flex-grow">
+            <i class="fas fa-stop"></i> DỪNG
+          </button>
+          <button class="modern-button btn-reset reset-button"> 
+            <i class="fas fa-redo"></i> RESET
+          </button>
+        </div>
+      </div>
+
+      <div class="section monitoring">
+        <div class="status-header">
+          <span class="section-title"> 
+            <i class="fas fa-chart-line"></i> GIÁM SÁT
+          </span>
+          <span id="statusCommand">ĐANG DỪNG</span> 
+        </div>
+        <div class="status-row"><span><i class="fas fa-wave-square"></i> TẦN SỐ CHẠY :</span><span id="tanSoRun">0 Hz</span></div>
+        <div class="status-row"><span><i class="fas fa-bolt"></i> DÒNG ĐIỆN :</span><span id="ampe">0 A</span></div>
+        <div class="status-row"><span><i class="fas fa-plug"></i> ĐIỆN ÁP :</span><span id="volt">0 V</span></div>
+        <div class="status-row"><span><i class="fas fa-fan"></i> TỐC ĐỘ :</span><span id="rpm">0 RPM</span></div>
+        <div class="status-row" id="errorRow"><span><i class="fas fa-triangle-exclamation"></i> MÃ LỖI :</span><span id="erorrCode">0</span></div>
+      </div>
+    </div> 
+  </div> 
+
+  <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
+  <script>
+  // Declare global variables for the widget and actions
+  let eraWidget;
+  let actions = [];
+  
+  // Wait for the DOM to be fully loaded before initializing the script
+  window.addEventListener("DOMContentLoaded", () => {
+    // Initialize the EraWidget
+    eraWidget = new EraWidget();
+    
+    // Get references to DOM elements for displaying data
+    const tansoOUT = document.getElementById('tanSoRun');
+    const Ampe = document.getElementById('ampe');
+    const Volt = document.getElementById('volt');
+    const MaLoi = document.getElementById('erorrCode');
+    const TrangThai = document.getElementById('statusCommand'); 
+    const hzSetOutput = document.getElementById('output'); 
+    const frequencyDisplay = document.getElementById('frequencyDisplay'); 
+    const frequencyInput = document.getElementById("frequency"); 
+    const rpm = document.getElementById("rpm"); 
+
+    // Variables to store configuration IDs from EraWidget
+    let configTansoRun = null, configAmpe = null, configVolt = null,
+        configErorrCode = null, configStatus = null, configHzSet = null, configRpm = null;
+    
+    // Variable to store the current set frequency by the user
+    let currentSetHz = 0; 
+
+    // Updated function to update the "Set: ... / Run: ..." display
+    function updateFrequencyDisplay(setHz, runHzValue) {
+        let setDisplayValue = setHz.toString(); 
+        let runDisplayValue = runHzValue.toString();
+
+        let setPart = `Set: <span style="color: var(--frequency-display-value-color);">${setDisplayValue}</span>`;
+        if (setDisplayValue !== '--' && setDisplayValue !== 'N/A' && !isNaN(parseFloat(setDisplayValue))) {
+            setPart += 'Hz';
+        }
+
+        let runPart = `Run: <span style="color: var(--frequency-display-value-color);">${runDisplayValue}</span>`;
+        if (runDisplayValue !== '--' && runDisplayValue !== 'N/A' && !isNaN(parseFloat(runDisplayValue))) {
+            runPart += 'Hz';
+        }
+        frequencyDisplay.innerHTML = `${setPart} / ${runPart}`;
+    }
+
+    // Load saved frequency from localStorage when the page loads
+    const savedFrequency = localStorage.getItem('savedFrequency');
+    if (savedFrequency !== null && !isNaN(parseFloat(savedFrequency))) {
+      currentSetHz = parseFloat(savedFrequency);
+      frequencyInput.value = currentSetHz; 
+      
+      const initialRunningHzText = tansoOUT.textContent || "0 Hz"; 
+      const initialRunningHz = initialRunningHzText.split(' ')[0]; 
+      hzSetOutput.textContent = `Tần số đã cài: ${currentSetHz} Hz`;
+      updateFrequencyDisplay(currentSetHz, initialRunningHz); 
+    } else {
+        const initialRun = tansoOUT.textContent.split(' ')[0] || '0'; 
+        updateFrequencyDisplay(0, initialRun);
+    }
+
+    // Initialize the EraWidget with configurations
+    eraWidget.init({
+      eraOrigin: window.location.origin, 
+      needRealtimeConfigs: true, 
+      needHistoryConfigs: true,  
+      needActions: true,         
+      maxRealtimeConfigsCount: 8, 
+      maxHistoryConfigsCount: 2,  
+      maxActionsCount: 5,         
+      minRealtimeConfigsCount: 6, 
+      minHistoryConfigsCount: 0,  
+      minActionsCount: 3,         
+      mobileHeight: 1000,         
+
+      onConfiguration: (configuration) => {
+        if (configuration.realtime_configs && configuration.realtime_configs.length >= 6) {
+          configTansoRun = configuration.realtime_configs[0];
+          configAmpe = configuration.realtime_configs[1];
+          configVolt = configuration.realtime_configs[2];
+          configErorrCode = configuration.realtime_configs[3];
+          configStatus = configuration.realtime_configs[4];
+          configHzSet = configuration.realtime_configs[5]; 
+          configRpm = configuration.realtime_configs[6]; 
+        } else {
+          console.error("Realtime configuration is insufficient. Expected at least 6, got:", configuration.realtime_configs?.length);
+        }
+        actions = configuration.actions || []; 
+        if (actions.length < 3) {
+            console.warn("Actions configuration might be insufficient. Expected at least 3 for Set, Start, Stop. Found:", actions.length);
+        }
+      },
+
+      onValues: (values) => {
+        const valueHzOUT = values[configTansoRun?.id]?.value ?? '0'; 
+        const valueAmpe = values[configAmpe?.id]?.value ?? '0';
+        const valueVolt = values[configVolt?.id]?.value ?? '0';
+        const valueErorr = values[configErorrCode?.id]?.value ?? '0';
+        const valueStastus = values[configStatus?.id]?.value ?? 'ĐANG DỪNG'; 
+        const valueHzSetFromDevice = values[configHzSet?.id]?.value; 
+        const valueRpm = values[configRpm?.id]?.value ?? '0';
+
+        tansoOUT.textContent = `${valueHzOUT} Hz`;
+        Ampe.textContent = `${valueAmpe} A`;
+        Volt.textContent = `${valueVolt} V`;
+        MaLoi.textContent = valueErorr;
+        rpm.textContent=`${valueRpm} RPM`;
+        
+        let setHzForUIDisplay = currentSetHz.toString(); 
+
+        if (valueHzSetFromDevice !== undefined && !isNaN(parseFloat(valueHzSetFromDevice))) {
+          const deviceConfirmedHz = (parseFloat(valueHzSetFromDevice) / 100).toFixed(0);
+          if (parseFloat(deviceConfirmedHz) !== currentSetHz) {
+             currentSetHz = parseFloat(deviceConfirmedHz);
+             localStorage.setItem('savedFrequency', currentSetHz); 
+             if (document.activeElement !== frequencyInput) {
+                frequencyInput.value = currentSetHz;
+             }
+          }
+          setHzForUIDisplay = deviceConfirmedHz; 
+        }
+        
+        hzSetOutput.textContent = `Tần số đã cài: ${setHzForUIDisplay} Hz`;
+        updateFrequencyDisplay(setHzForUIDisplay, valueHzOUT); 
+
+        const statusString = String(valueStastus); 
+        
+        if (statusString === "1283" || statusString === "1281") { // ĐANG CHẠY
+          TrangThai.innerHTML = `<i class="fas fa-fan custom-spin" style="margin-right: 8px;"></i>ĐANG CHẠY`;
+          TrangThai.style.color = 'var(--status-running-text-color)';
+          TrangThai.style.backgroundColor = 'var(--status-running-bg-color)';
+          TrangThai.style.borderColor = 'var(--status-running-border-color)';
+          TrangThai.classList.add('blink-running'); // Add blinking class
+          const icon = TrangThai.querySelector('i');
+          if(icon) icon.style.color = 'var(--status-running-text-color)';
+        } else { // ĐANG DỪNG
+          TrangThai.innerHTML = `<i class="fas fa-fan" style="margin-right: 8px;"></i>ĐANG DỪNG`;
+          TrangThai.style.color = 'var(--status-stopped-text-color)';
+          TrangThai.style.backgroundColor = 'var(--status-stopped-bg-color)';
+          TrangThai.style.borderColor = 'var(--status-stopped-border-color)';
+          TrangThai.classList.remove('blink-running'); // Remove blinking class
+          const icon = TrangThai.querySelector('i');
+          if(icon) icon.style.color = 'var(--status-stopped-text-color)';
+        }
+
+        const errorRow = document.getElementById("errorRow");
+        errorRow.classList.toggle("blink-error", parseInt(valueErorr) !== 0 && valueErorr !== '0');
+      },
+    });
+
+    document.getElementById("setFrequency").addEventListener("click", function () {
+      const inputElement = document.getElementById("frequency"); 
+      const outputDisplay = document.getElementById("output"); 
+      const inputValue = inputElement.value.trim(); 
+      let numericValue = parseFloat(inputValue);  
+
+      if (!isNaN(numericValue)) {
+        numericValue = Math.max(0, Math.min(numericValue, 50)); 
+        numericValue = Math.round(numericValue); 
+
+        currentSetHz = numericValue; 
+        localStorage.setItem('savedFrequency', numericValue); 
+        inputElement.value = numericValue; 
+
+        const currentRunningHzText = tansoOUT.textContent || "0 Hz"; 
+        const currentRunningHz = currentRunningHzText.split(' ')[0]; 
+
+        outputDisplay.textContent = "Tần số đã cài: " + numericValue + "Hz";
+        updateFrequencyDisplay(numericValue, currentRunningHz); 
+        outputDisplay.style.color = "var(--output-text-color)"; 
+
+        this.style.transform = "scale(0.95)"; 
+        setTimeout(() => { this.style.transform = "scale(1)"; }, 150);
+
+        if (actions?.[0]?.action) { 
+          eraWidget.triggerAction(actions[0].action, null, { value: (numericValue * 100) }); 
+        } else {
+          console.warn("Không tìm thấy action [0] (SET FREQUENCY) để gửi tần số.");
+        }
+      } else {
+        outputDisplay.textContent = "Tần số không hợp lệ! (0-50Hz)";
+        outputDisplay.style.color = "#ff4757"; 
+        
+        inputElement.style.animation = "shake 0.5s ease-in-out";
+        setTimeout(() => { inputElement.style.animation = ""; }, 500);
+      }
+    });
+
+    const arrowUpButton = document.getElementById('arrowUp');
+    const arrowDownButton = document.getElementById('arrowDown');
+
+    if (arrowUpButton && arrowDownButton && frequencyInput) {
+        arrowUpButton.addEventListener('click', () => {
+            let currentValue = parseFloat(frequencyInput.value);
+            if (isNaN(currentValue)) currentValue = -1; 
+            let newValue = Math.min(Math.round(currentValue + 1), 50);
+            frequencyInput.value = newValue;
+        });
+
+        arrowDownButton.addEventListener('click', () => {
+            let currentValue = parseFloat(frequencyInput.value);
+            if (isNaN(currentValue)) currentValue = 1; 
+            let newValue = Math.max(Math.round(currentValue - 1), 0);
+            frequencyInput.value = newValue;
+        });
+    }
+
+    function setupControlButton(selector, actionIndex, actionName) {
+      const button = document.querySelector(selector);
+      if (button) {
+        button.addEventListener("click", () => {
+          if (actions?.[actionIndex]?.action) {
+            eraWidget.triggerAction(actions[actionIndex].action, null);
+          } else {
+            console.warn(`Action '${actionName}' (actions[${actionIndex}]) not configured.`);
+          }
+        });
+      } else {
+          console.warn(`Button with selector '${selector}' not found for action '${actionName}'.`)
+      }
+    }
+    setupControlButton(".btn-start", 1, "CHẠY");   
+    setupControlButton(".btn-stop", 2, "DỪNG");    
+    
+    if (frequencyInput) {
+      frequencyInput.addEventListener("keypress", function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault(); 
+          document.getElementById("setFrequency").click(); 
+        }
+      });
+    }
+  });
+
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(0); } 
+      75% { transform: translateX(5px); }
+    }
+  `;
+  document.head.appendChild(styleElement);
+  </script>
+</body>
+</html>
