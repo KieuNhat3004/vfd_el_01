@@ -603,7 +603,7 @@ body::before {
   window.addEventListener("DOMContentLoaded", () => {
     // Initialize the EraWidget
     eraWidget = new EraWidget();
-    
+    eraWidget.ready();
     // Get references to DOM elements for displaying data
     const tansoOUT = document.getElementById('tanSoRun');
     const Ampe = document.getElementById('ampe');
