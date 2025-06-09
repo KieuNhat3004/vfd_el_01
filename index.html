@@ -640,19 +640,19 @@ body::before {
     }
 
     // Load saved frequency from localStorage when the page loads
-    // const savedFrequency = localStorage.getItem('savedFrequency');
-    // if (savedFrequency !== null && !isNaN(parseFloat(savedFrequency))) {
-    //   currentSetHz = parseFloat(savedFrequency);
-    //   frequencyInput.value = currentSetHz; 
+    const savedFrequency = localStorage.getItem('savedFrequency');
+    if (savedFrequency !== null && !isNaN(parseFloat(savedFrequency))) {
+      currentSetHz = parseFloat(savedFrequency);
+      frequencyInput.value = currentSetHz; 
       
-    //   const initialRunningHzText = tansoOUT.textContent || "0 Hz"; 
-    //   const initialRunningHz = initialRunningHzText.split(' ')[0]; 
-    //   hzSetOutput.textContent = `Tần số đã cài: ${currentSetHz} Hz`;
-    //   updateFrequencyDisplay(currentSetHz, initialRunningHz); 
-    // } else {
-    //     const initialRun = tansoOUT.textContent.split(' ')[0] || '0'; 
-    //     updateFrequencyDisplay(0, initialRun);
-    // }
+      const initialRunningHzText = tansoOUT.textContent || "0 Hz"; 
+      const initialRunningHz = initialRunningHzText.split(' ')[0]; 
+      hzSetOutput.textContent = `Tần số đã cài: ${currentSetHz} Hz`;
+      updateFrequencyDisplay(currentSetHz, initialRunningHz); 
+    } else {
+        const initialRun = tansoOUT.textContent.split(' ')[0] || '0'; 
+        updateFrequencyDisplay(0, initialRun);
+    }
 
     // Initialize the EraWidget with configurations
     eraWidget.init({
