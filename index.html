@@ -804,6 +804,7 @@ body::before {
       const button = document.querySelector(selector);
       if (button) {
         button.addEventListener("click", () => {
+          alert(`Lệnh "${actionName}" sắp được gửi đi!`); 
           if (actions?.[actionIndex]?.action) {
             // eraWidget.triggerAction(actions[actionIndex].action, null);
           } else {
@@ -814,7 +815,7 @@ body::before {
           console.warn(`Button with selector '${selector}' not found for action '${actionName}'.`)
       }
     }
-    // setupControlButton(".btn-start", 1, "CHẠY");   
+    setupControlButton(".btn-start", 1, "CHẠY");   
     setupControlButton(".btn-stop", 2, "DỪNG");    
     
     if (frequencyInput) {
