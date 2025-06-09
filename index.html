@@ -805,7 +805,7 @@ body::before {
       if (button) {
         button.addEventListener("click", () => {
           if (actions?.[actionIndex]?.action) {
-            eraWidget.triggerAction(actions[actionIndex].action, null);
+            // eraWidget.triggerAction(actions[actionIndex].action, null);
           } else {
             console.warn(`Action '${actionName}' (actions[${actionIndex}]) not configured.`);
           }
