@@ -804,7 +804,7 @@ body::before {
       const button = document.querySelector(selector);
       if (button) {
         button.addEventListener("click", () => {
-          alert(`Lệnh "${actionName}" sắp được gửi đi!`); 
+          // alert(`Lệnh "${actionName}" sắp được gửi đi!`); 
           if (actions?.[actionIndex]?.action) {
             eraWidget.triggerAction(actions[actionIndex].action, null);
           } else {
