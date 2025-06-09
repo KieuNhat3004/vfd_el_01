@@ -598,7 +598,7 @@ body::before {
   // Declare global variables for the widget and actions
   let eraWidget;
   let actions = [];
-  
+  let initializationComplete = false; // <-- THÊM BIẾN NÀY
   // Wait for the DOM to be fully loaded before initializing the script
   window.addEventListener("DOMContentLoaded", () => {
     // Initialize the EraWidget
@@ -801,20 +801,31 @@ body::before {
     }
 
     function setupControlButton(selector, actionIndex, actionName) {
-      const button = document.querySelector(selector);
-      if (button) {
+    const button = document.querySelector(selector);
+    if (button) {
         button.addEventListener("click", () => {
-          // alert(`Lệnh "${actionName}" sắp được gửi đi!`); 
-          if (actions?.[actionIndex]?.action) {
-            eraWidget.triggerAction(actions[actionIndex].action, null);
-          } else {
-            console.warn(`Action '${actionName}' (actions[${actionIndex}]) not configured.`);
-          }
+            // KIỂM TRA "CỔNG GÁC": Nếu chưa khởi tạo xong, bỏ qua sự kiện click này
+            if (!initializationComplete) {
+                console.warn(`Sự kiện click cho nút "${actionName}" đã bị bỏ qua trong quá trình khởi tạo.`);
+                return; // Dừng lại, không làm gì cả
+            }
+
+            // Nếu đã qua cổng gác, thực thi lệnh như bình thường
+            console.log(`Người dùng đã nhấn nút "${actionName}". Đang gửi lệnh...`);
+            // bạn có thể xóa dòng alert() bên dưới nếu muốn
+            // alert(`Lệnh "${actionName}" sắp được gửi đi!`); 
+
+            if (actions?.[actionIndex]?.action) {
+                eraWidget.triggerAction(actions[actionIndex].action, null);
+            } else {
+                console.warn(`Action '${actionName}' (actions[${actionIndex}]) not configured.`);
+            }
         });
-      } else {
-          console.warn(`Button with selector '${selector}' not found for action '${actionName}'.`)
-      }
+    } else {
+        console.warn(`Button with selector '${selector}' not found for action '${actionName}'.`);
     }
+}
+    
     setupControlButton(".btn-start", 1, "CHẠY");   
     setupControlButton(".btn-stop", 2, "DỪNG");    
     
@@ -826,6 +837,12 @@ body::before {
         }
       });
     }
+
+    setTimeout(() => {
+        initializationComplete = true;
+        console.log("Hệ thống đã sẵn sàng nhận lệnh điều khiển từ người dùng.");
+    }, 1500)
+    
   });
 
   const styleElement = document.createElement('style');
